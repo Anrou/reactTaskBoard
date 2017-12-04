@@ -9,11 +9,17 @@ if (typeof window.requestAnimationFrame !== 'function') {
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import {Provider} from 'react-redux';
+import configureStore from './store';
+import App from './components/app'
 
-const App = () => (
-        <div>
-            <h1>Hello, Redux!</h1>
-        </div>
+
+const store = configureStore();
+
+const Container = () => (
+    <Provider store={store}>
+        <App />
+    </Provider>
 );
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<Container />, document.getElementById('root'));

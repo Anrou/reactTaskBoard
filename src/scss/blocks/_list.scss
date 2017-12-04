@@ -1,0 +1,36 @@
+.list {
+  width: 240px;
+  background-color: #fff;
+  border-radius: 4px;
+
+  box-sizing: border-box;
+  user-select: none;
+  box-shadow: $box-shadow-sm;
+
+  &__header {
+    display: flex;
+    cursor: move;
+    justify-content: space-between;
+    padding: 8px;
+    box-shadow: $box-shadow-sm;
+  }
+
+  &__title {
+    font-weight: 600;
+    width: calc(100% - #{$icon-width});
+    word-wrap: break-word;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+  }
+
+  &__item {
+    padding: 8px 0;
+    &:last-child {
+      padding-bottom: 0;
+    }
+  }
+}

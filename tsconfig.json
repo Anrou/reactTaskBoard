@@ -9,6 +9,7 @@
     "target": "es5",
     "module": "esnext",
     "jsx": "react",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "experimentalDecorators": true
   }
 }

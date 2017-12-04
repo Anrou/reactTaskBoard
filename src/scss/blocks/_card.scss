@@ -1,0 +1,44 @@
+.card {
+  box-shadow: $box-shadow-sm;
+  display: flex;
+  align-items: flex-start;
+  padding: 8px;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+
+  &__text {
+    width: calc(100% - #{$icon-width});
+    word-wrap: break-word;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__color-picker {
+    padding-top: 8px;
+    padding-bottom: 2px;
+    height: 0;
+    opacity: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    overflow: hidden;
+    transition: all .2s;
+
+    &_show {
+      height: 16px;
+      opacity: 1;
+    }
+  }
+
+  &__color {
+    width: 16px;
+    height: 16px;
+    background: #E91E63;
+    border-radius: 3px;
+    cursor: pointer;
+    box-shadow: $box-shadow-sm;
+  }
+}
