@@ -44,16 +44,15 @@ class List extends React.Component<ListProps, {}> {
     render() {
 
         const {list, cards} = this.props;
-        return <Draggable draggableId={`list-${list.id}`} type="LIST">
+        return <Draggable draggableId={list.id.toString()} type="LIST">
             {(provided, snapshot) => (
                 <div>
                     <div ref={provided.innerRef}
                          style={provided.draggableStyle}
-                        {...provided.dragHandleProps}
                          className="grid__spacer"
                     >
                         <div className="list">
-                            <div className="list__header">
+                            <div className="list__header" {...provided.dragHandleProps}>
                                 <div className="list__title">{list.title}</div>
                                 <i className="material-icons" onClick={this.onDelete}>delete</i>
                             </div>

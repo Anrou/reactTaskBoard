@@ -23,6 +23,8 @@ type ADD = typeof ADD;
 const DELETE = "list/DELETE";
 type DELETE = typeof DELETE;
 
+const DRAG = "list/DRAG";
+type DRAG = typeof DRAG;
 
 /**
  *  Actions
@@ -38,7 +40,16 @@ export interface DeleteAction {
     id: number;
 }
 
-type ListAction = AddAction | DeleteAction;
+export interface DragAction {
+    type: DRAG;
+    payload: {
+        id: number,
+        sourcePosition: number,
+        targetPosition: number
+    }
+}
+
+type ListAction = AddAction | DeleteAction | DragAction;
 
 let listIdCounter: number = 0;
 
@@ -73,6 +84,33 @@ export default function reducer(state: ListsState = InitialState, action: ListAc
             }
         }
 
+        case DRAG: {
+            const {sourcePosition, targetPosition} = action.payload;
+            let increase = sourcePosition <  targetPosition;
+            let listHash = {
+                ...state.listHash,
+            };
+
+            for(let indx in listHash) {
+                if(+indx != action.payload.id ) { //+indx - hack to convert string to int
+                    if(increase && listHash[indx].position > sourcePosition && listHash[indx].position <= targetPosition) {
+                        listHash[indx].position -= 1;
+                    } else if (!increase && listHash[indx].position >= targetPosition && listHash[indx].position < sourcePosition){
+                        listHash[indx].position += 1;
+                    }
+                } else {
+                    listHash[indx].position =  action.payload.targetPosition;
+                }
+            }
+
+            return {
+                listIds: [...state.listIds],
+                listHash: {
+                    ...listHash
+                }
+            }
+        }
+
         default: return state;
     }
 }
@@ -89,4 +127,13 @@ export const addList = (title: string): AddAction => ({
 export const deleteList = (id: number): DeleteAction => ({
     type: DELETE,
     id
+});
+
+export const dragList = (id: number, sourcePosition: number, targetPosition: number): DragAction => ({
+    type: DRAG,
+    payload: {
+        id,
+        sourcePosition,
+        targetPosition
+    }
 });

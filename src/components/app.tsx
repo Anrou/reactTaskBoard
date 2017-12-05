@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {IList} from "../redux/list"
+import {IList, dragList} from "../redux/list"
 import {IStore} from "../store";
 import {DispatchProp, connect} from "react-redux";
 import AddItem from "./addItem";
@@ -23,8 +23,13 @@ class App extends React.Component<AppProps, {}> {
         dispatch(addList((title)));
     };
 
-    onDragEnd = () => {
-
+    onDragEnd = (event) => {
+        console.log(event);
+        if(!event.destination) return;
+        const {dispatch} = this.props;
+        switch(event.type){
+            case "LIST": dispatch(dragList(parseInt(event.draggableId), event.source.index, event.destination.index))
+        }
     };
 
 
