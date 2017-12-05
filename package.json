@@ -43,10 +43,12 @@
     "webpack-bundle-analyzer": "^2.9.0"
   },
   "dependencies": {
+    "@types/react-beautiful-dnd": "^2.3.2",
     "axios": "^0.17.0",
     "core-js": "^2.5.1",
     "node.normalize.scss": "^3.0.3",
     "react": "16.0.0",
+    "react-beautiful-dnd": "^3.0.0",
     "react-dom": "16.0.0",
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",

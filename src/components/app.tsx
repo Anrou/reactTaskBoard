@@ -1,11 +1,12 @@
 import * as React from 'react';
-import { IList } from "../redux/list"
+import {IList} from "../redux/list"
 import {IStore} from "../store";
 import {DispatchProp, connect} from "react-redux";
 import AddItem from "./addItem";
 import List from "./list"
 import {addList} from "../redux/list"
 
+import {DragDropContext, Droppable} from 'react-beautiful-dnd';
 
 interface AppProps extends DispatchProp<IStore> {
     listsIds: Array<number>,
@@ -22,16 +23,34 @@ class App extends React.Component<AppProps, {}> {
         dispatch(addList((title)));
     };
 
+    onDragEnd = () => {
+
+    };
+
+
     render() {
         const {listsIds, listsHash} = this.props;
-        return <div className="grid">{listsIds.sort((id1, id2)=>(listsHash[id1].position - listsHash[id2].position)).map((id) => {
-                return <List list={listsHash[id]} key={id}/>
-            }
-        )}
-            <div className="grid__column">
-                <AddItem onAddItem={this.onAddList}/>
-            </div>
-        </div>
+        return <DragDropContext onDragEnd={this.onDragEnd}>
+            <Droppable droppableId="listDropable" type="LIST" direction="horizontal">
+                {(provided, snapshot) => (
+                    <div className="grid" ref={provided.innerRef}>
+                        {listsIds.sort((id1, id2) => (listsHash[id1].position - listsHash[id2].position)).map((id) => {
+                            return  <div className="grid__column" key={id}>
+
+                                <List list={listsHash[id]} key={id}/>
+
+                            </div>
+
+                        })}
+                        {provided.placeholder}
+                        <div className="grid__column grid__spacer">
+                            <AddItem onAddItem={this.onAddList}/>
+                        </div>
+                    </div>
+                )}
+            </Droppable>
+        </DragDropContext>
+
     }
 }
 

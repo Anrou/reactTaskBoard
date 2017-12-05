@@ -5,6 +5,7 @@ import {DispatchProp, connect} from "react-redux";
 import AddItem from "./addItem"
 import {ICard, addCard, updateCardColor, deleteCard} from "../redux/card";
 import {Card} from "./card"
+import {Draggable} from "react-beautiful-dnd";
 
 
 interface ListProps extends DispatchProp<IStore> {
@@ -29,12 +30,12 @@ class List extends React.Component<ListProps, {}> {
         dispatch(addCard(text, list.id))
     };
 
-    onDeleteCard = (cardId)=>{
+    onDeleteCard = (cardId) => {
         const {dispatch} = this.props;
         dispatch(deleteCard(cardId));
     };
 
-    onCardColorChange = (color, cardId)=>{
+    onCardColorChange = (color, cardId) => {
         const {dispatch} = this.props;
         console.log(color, cardId);
         dispatch(updateCardColor(color, cardId))
@@ -43,20 +44,34 @@ class List extends React.Component<ListProps, {}> {
     render() {
 
         const {list, cards} = this.props;
-        return <div className="list grid__column">
-            <div className="list__header">
-                <div className="list__title">{list.title}</div>
-                <i className="material-icons" onClick={this.onDelete}>delete</i>
-            </div>
-            <div className="list__content">
-                {cards.cardIds.map((id)=>(<div className="list__item" key={cards.cardHash[id].id} >
-                    <Card card={cards.cardHash[id]} onColorChange={this.onCardColorChange} onDelete={this.onDeleteCard}/>
-                </div>))}
-                <div className="list__item">
-                    <AddItem onAddItem={this.onAddItem} />
+        return <Draggable draggableId={`list-${list.id}`} type="LIST">
+            {(provided, snapshot) => (
+                <div>
+                    <div ref={provided.innerRef}
+                         style={provided.draggableStyle}
+                        {...provided.dragHandleProps}
+                         className="grid__spacer"
+                    >
+                        <div className="list">
+                            <div className="list__header">
+                                <div className="list__title">{list.title}</div>
+                                <i className="material-icons" onClick={this.onDelete}>delete</i>
+                            </div>
+                            <div className="list__content">
+                                {cards.cardIds.map((id) => (<div className="list__item" key={cards.cardHash[id].id}>
+                                    <Card card={cards.cardHash[id]} onColorChange={this.onCardColorChange}
+                                          onDelete={this.onDeleteCard}/>
+                                </div>))}
+                                <div className="list__item">
+                                    <AddItem onAddItem={this.onAddItem}/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {provided.placeholder}
                 </div>
-            </div>
-        </div>
+            )}
+        </Draggable>;
     }
 
 }
@@ -68,8 +83,8 @@ const mapStateToProps = (state: IStore, ownProperties: ListProps): ListProps => 
         cards: {
             cardHash: state.cards.cardHash,
             cardIds: state.cards.cardIds
-                .filter((id)=>(state.cards.cardHash[id].listId === ownProperties.list.id))
-                .sort((id1, id2)=>(state.cards.cardHash[id1].order - state.cards.cardHash[id2].order))
+                .filter((id) => (state.cards.cardHash[id].listId === ownProperties.list.id))
+                .sort((id1, id2) => (state.cards.cardHash[id1].order - state.cards.cardHash[id2].order))
         }
     }
 };

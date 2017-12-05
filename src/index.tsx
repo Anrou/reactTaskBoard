@@ -12,9 +12,14 @@ import * as ReactDOM from 'react-dom';
 import {Provider} from 'react-redux';
 import configureStore from './store';
 import App from './components/app'
+import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 
 
 const store = configureStore();
+
+function onDragEnd(result) {
+    console.log(result)
+}
 
 const Container = () => (
     <Provider store={store}>

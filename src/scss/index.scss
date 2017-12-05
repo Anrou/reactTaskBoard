@@ -15,8 +15,11 @@ body {
   display: flex;
   align-items: flex-start;
   &__column {
-    margin: 16px 8px;
     flex: 0 0 auto;
+  }
+
+  &__spacer {
+    padding: 16px 8px;
   }
 }
 
