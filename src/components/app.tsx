@@ -7,6 +7,7 @@ import List from "./list"
 import {addList} from "../redux/list"
 
 import {DragDropContext, Droppable} from 'react-beautiful-dnd';
+import {dragCard} from "../redux/card";
 
 interface AppProps extends DispatchProp<IStore> {
     listsIds: Array<number>,
@@ -24,11 +25,15 @@ class App extends React.Component<AppProps, {}> {
     };
 
     onDragEnd = (event) => {
-        console.log(event);
-        if(!event.destination) return;
+        if (!event.destination) return;
         const {dispatch} = this.props;
-        switch(event.type){
-            case "LIST": dispatch(dragList(parseInt(event.draggableId), event.source.index, event.destination.index))
+        switch (event.type) {
+            case "LIST": {
+                dispatch(dragList(parseInt(event.draggableId), event.source.index, event.destination.index));
+                break;
+            }
+            case "CARD":
+                dispatch(dragCard(parseInt(event.draggableId), event.source.index, event.destination.index, parseInt(event.destination.droppableId)))
         }
     };
 

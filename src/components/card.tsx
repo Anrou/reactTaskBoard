@@ -1,4 +1,6 @@
 import * as React from 'react'
+import {Draggable} from "react-beautiful-dnd";
+
 
 interface CardState {
     availableColors: Array<string>,
@@ -13,7 +15,7 @@ interface CardProps {
 
 export class Card extends React.Component<CardProps, CardState> {
 
-    constructor(props){
+    constructor(props) {
         super(props);
         this.state = {
             availableColors: [
@@ -28,21 +30,21 @@ export class Card extends React.Component<CardProps, CardState> {
         }
     }
 
-    get pickerClasses(){
-        return `card__color-picker ${this.state.showColorPicker? 'card__color-picker_show' : ''}`
+    get pickerClasses() {
+        return `card__color-picker ${this.state.showColorPicker ? 'card__color-picker_show' : ''}`
     }
 
-    toggleColorPicker(){
+    toggleColorPicker() {
         this.setState({showColorPicker: !this.state.showColorPicker});
 
     }
 
-    onDelete = ()=>{
+    onDelete = () => {
         const {card, onDelete} = this.props;
         onDelete(card.id);
     };
 
-    changeColor(color: string){
+    changeColor(color: string) {
         const {card, onColorChange} = this.props;
         onColorChange(color, card.id);
         this.toggleColorPicker();
@@ -54,29 +56,42 @@ export class Card extends React.Component<CardProps, CardState> {
             background: card.background,
             color: card.textColor
         };
-        return <div
-            className="card"
-            style={styles}
-        >
-            <div className="card__text">{card.text}</div>
-            <div className="card__actions">
-                <i className="material-icons"
-                   onClick={()=>{this.onDelete()}}
-                >delete</i>
-                <i className="material-icons"
-                   onClick={()=> this.toggleColorPicker()}
-                >color_lens</i>
-            </div>
-            <div className={this.pickerClasses}>
-                {
-                    this.state.availableColors.map((val, indx)=>(<div
-                        key={indx}
-                        className="card__color"
-                        style={{background: val}}
-                        onClick={()=>{this.changeColor(val)}}
-                    ></div>))
-                }
-            </div>
-        </div>
+        return <Draggable draggableId={card.id.toString()} type="CARD">
+            {(provided, snapshot) => (
+                <div>
+                    <div className="list__item"
+                         style={ ...provided.draggableStyle}
+                         ref={provided.innerRef}
+                        {...provided.dragHandleProps}
+                    >
+                        <div
+                            className="card"
+                            style={{...styles}}>
+                            <div className="card__text">{card.text}</div>
+                            <div className="card__actions">
+                                <i className="material-icons"
+                                   onClick={()=>{this.onDelete()}}
+                                >delete</i>
+                                <i className="material-icons"
+                                   onClick={()=> this.toggleColorPicker()}
+                                >color_lens</i>
+                            </div>
+                            <div className={this.pickerClasses}>
+                                {
+                                    this.state.availableColors.map((val, indx) => (<div
+                                        key={indx}
+                                        className="card__color"
+                                        style={{background: val}}
+                                        onClick={()=>{this.changeColor(val)}}
+                                    ></div>))
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    {provided.placeholder}
+                </div>
+            )}
+
+        </Draggable>
     }
 }

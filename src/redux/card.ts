@@ -28,6 +28,9 @@ type DELETE_CARD = typeof DELETE;
 const UPDATE_COLOR = "card/COLOR";
 type UPDATE_CARD_COLOR = typeof UPDATE_COLOR;
 
+const DRAG = "card/DRAG";
+type DRAG = typeof DRAG;
+
 export interface AddCardAction {
     type: ADD_CARD;
     payload: {
@@ -50,7 +53,17 @@ export interface UpdateCardColorAction {
     }
 }
 
-type CardAction = AddCardAction | DeleteCardAction | UpdateCardColorAction;
+export interface DragCardAction {
+    type: DRAG;
+    payload: {
+        id: number,
+        sourcePosition: number,
+        targetPosition: number,
+        targetLIstId: number
+    }
+}
+
+type CardAction = AddCardAction | DeleteCardAction | UpdateCardColorAction | DragCardAction;
 
 let cardIdCounter: number = 0;
 
@@ -96,14 +109,60 @@ export default function reducer(state: CardsState = InitialState, action: CardAc
             const deletedListPosition = state.cardHash[action.id].order,
                 deletedCardListId = state.cardHash[action.id].listId;
             delete state.cardHash[action.id];
-            prunedIds.forEach((id)=>{
-                if(state.cardHash[id].order > deletedListPosition && state.cardHash[id].listId === deletedCardListId) {
+            prunedIds.forEach((id) => {
+                if (state.cardHash[id].order > deletedListPosition && state.cardHash[id].listId === deletedCardListId) {
                     state.cardHash[id].order -= 1;
                 }
             });
             return {
                 cardIds: prunedIds,
                 cardHash: state.cardHash
+            }
+        }
+
+        case DRAG: {
+            const {sourcePosition, targetPosition, targetLIstId} = action.payload;
+
+            let increase = sourcePosition < targetPosition;
+            let cardHash = {
+                ...state.cardHash,
+            };
+
+            let souyrceListId = cardHash[action.payload.id].listId;
+
+            if (targetLIstId === cardHash[action.payload.id].listId) { //if reorder in the same list
+                for (let indx in cardHash) {
+                    if (cardHash[indx].id != action.payload.id) {
+                        if (increase && cardHash[indx].order > sourcePosition && cardHash[indx].order <= targetPosition) {
+                            cardHash[indx].order -= 1;
+                        } else if (!increase && cardHash[indx].order >= targetPosition && cardHash[indx].order < sourcePosition) {
+                            cardHash[indx].order += 1;
+                        }
+
+                    }
+                }
+                cardHash[action.payload.id].order = targetPosition;
+            }
+            else { //if move card to another list
+                for (let indx in cardHash) {
+                    if (cardHash[indx].id != action.payload.id) {
+                        if (cardHash[indx].listId === targetLIstId && cardHash[indx].order >= targetPosition) {
+                            cardHash[indx].order += 1;
+                        } else if (cardHash[indx].listId === souyrceListId && cardHash[indx].order > sourcePosition) {
+                            cardHash[indx].order -= 1;
+                        }
+                    }
+                }
+
+                cardHash[action.payload.id].order = targetPosition;
+                cardHash[action.payload.id].listId = targetLIstId;
+            }
+
+            return {
+                cardIds: [...state.cardIds],
+                cardHash: {
+                    ...cardHash
+                }
             }
         }
 
@@ -122,26 +181,36 @@ export const updateCardColor = (background: string, id: number): UpdateCardColor
     payload: {background, id}
 });
 
-export const deleteCard = ( id: number): DeleteCardAction => ({
+export const deleteCard = (id: number): DeleteCardAction => ({
     type: DELETE,
     id
 });
 
-function selectColor(hex){
-        // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-        let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-        hex = hex.replace(shorthandRegex, function(m, r, g, b) {
-            return r + r + g + g + b + b;
-        });
+export const dragCard = (id: number, sourcePosition: number, targetPosition: number, targetLIstId: number): DragCardAction => ({
+    type: DRAG,
+    payload: {
+        id,
+        sourcePosition,
+        targetPosition,
+        targetLIstId
+    }
+});
 
-        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        let rgb = result ? {
-                r: parseInt(result[1], 16),
-                g: parseInt(result[2], 16),
-                b: parseInt(result[3], 16)
-            } : null;
+function selectColor(hex) {
+    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+    let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function (m, r, g, b) {
+        return r + r + g + g + b + b;
+    });
 
-        console.log(rgb, (rgb.r*0.299 + rgb.g*0.587 + rgb.b*0.114) > 186 ? '#000000' : '#ffffff');
+    let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    let rgb = result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
 
-        return(rgb.r*0.299 + rgb.g*0.587 + rgb.b*0.114) > 186 ? '#000000' : '#ffffff'
+    console.log(rgb, (rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114) > 186 ? '#000000' : '#ffffff');
+
+    return (rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114) > 186 ? '#000000' : '#ffffff'
 }

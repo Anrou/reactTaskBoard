@@ -5,7 +5,7 @@ import {DispatchProp, connect} from "react-redux";
 import AddItem from "./addItem"
 import {ICard, addCard, updateCardColor, deleteCard} from "../redux/card";
 import {Card} from "./card"
-import {Draggable} from "react-beautiful-dnd";
+import {Draggable, Droppable} from "react-beautiful-dnd";
 
 
 interface ListProps extends DispatchProp<IStore> {
@@ -56,15 +56,24 @@ class List extends React.Component<ListProps, {}> {
                                 <div className="list__title">{list.title}</div>
                                 <i className="material-icons" onClick={this.onDelete}>delete</i>
                             </div>
-                            <div className="list__content">
-                                {cards.cardIds.map((id) => (<div className="list__item" key={cards.cardHash[id].id}>
-                                    <Card card={cards.cardHash[id]} onColorChange={this.onCardColorChange}
-                                          onDelete={this.onDeleteCard}/>
-                                </div>))}
-                                <div className="list__item">
-                                    <AddItem onAddItem={this.onAddItem}/>
-                                </div>
-                            </div>
+                            <Droppable droppableId={list.id.toString()} type="CARD">
+                                {(provided, snapshot) => (
+                                    <div className="list__content" ref={provided.innerRef}>
+                                        <div>
+                                            {cards.cardIds.map((id) => (
+
+                                                <Card card={cards.cardHash[id]}
+                                                      key={cards.cardHash[id].id}
+                                                      onColorChange={this.onCardColorChange}
+                                                      onDelete={this.onDeleteCard}/>
+                                            ))}
+                                            {provided.placeholder}
+                                        </div>
+                                        <div className="list__item">
+                                            <AddItem onAddItem={this.onAddItem}/>
+                                        </div>
+                                    </div>)}
+                            </Droppable>
                         </div>
                     </div>
                     {provided.placeholder}
@@ -72,7 +81,6 @@ class List extends React.Component<ListProps, {}> {
             )}
         </Draggable>;
     }
-
 }
 
 const mapStateToProps = (state: IStore, ownProperties: ListProps): ListProps => {

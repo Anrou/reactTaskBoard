@@ -92,16 +92,16 @@ export default function reducer(state: ListsState = InitialState, action: ListAc
             };
 
             for(let indx in listHash) {
-                if(+indx != action.payload.id ) { //+indx - hack to convert string to int
+                if(listHash[indx].id != action.payload.id ) {
                     if(increase && listHash[indx].position > sourcePosition && listHash[indx].position <= targetPosition) {
                         listHash[indx].position -= 1;
                     } else if (!increase && listHash[indx].position >= targetPosition && listHash[indx].position < sourcePosition){
                         listHash[indx].position += 1;
                     }
-                } else {
-                    listHash[indx].position =  action.payload.targetPosition;
                 }
             }
+
+            listHash[action.payload.id].position =  action.payload.targetPosition;
 
             return {
                 listIds: [...state.listIds],
